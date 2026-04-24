@@ -187,6 +187,10 @@ module.exports = {
             `間隔時間： ${gap}`,
         },
         {
+          name: "身分組",
+          value: truncate(roleList || "無", 500),
+        },
+        {
           name: "訊息內容",
           value: truncate(contentText || "(無文字內容)", 1000),
         }

@@ -16,6 +16,8 @@ const muteCommand = require("./commands/mute");
 const unmuteCommand = require("./commands/unmute");
 const queryRecordCommand = require("./commands/queryRecord");
 const messageDeleteLogger = require("./events/messageDeleteLogger");
+const memberLogger = require("./events/memberLogger");
+const voiceLogger = require("./events/voiceLogger");
 
 const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENT_ID;
@@ -23,6 +25,9 @@ const guildId = process.env.GUILD_ID;
 const tokenPattern = /^[\w-]{24,}\.[\w-]{6,}\.[\w-]{20,}$/;
 const snowflakePattern = /^\d{17,20}$/;
 const lockFilePath = path.join(__dirname, "..", ".bot.lock");
+const enableSingleInstanceLock = /^(1|true|yes|on)$/i.test(
+  (process.env.ENABLE_SINGLE_INSTANCE_LOCK || "").trim()
+);
 
 let lockFd;
 
@@ -109,7 +114,11 @@ function acquireSingleInstanceLock() {
   }
 }
 
-acquireSingleInstanceLock();
+if (enableSingleInstanceLock) {
+  acquireSingleInstanceLock();
+} else {
+  console.log("Single instance lock is disabled. Set ENABLE_SINGLE_INSTANCE_LOCK=true to enable it.");
+}
 
 if (!token) {
   console.error("Missing DISCORD_TOKEN in .env file.");
@@ -165,6 +174,7 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildPresences,
+    GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
   ],
@@ -248,6 +258,30 @@ client.on(Events.MessageDelete, async (message) => {
     await messageDeleteLogger.execute(message, client);
   } catch (error) {
     console.error("MessageDelete logger error:", error);
+  }
+});
+
+client.on(Events.GuildMemberAdd, async (member) => {
+  try {
+    await memberLogger.onMemberAdd(member, client);
+  } catch (error) {
+    console.error("GuildMemberAdd logger error:", error);
+  }
+});
+
+client.on(Events.GuildMemberRemove, async (member) => {
+  try {
+    await memberLogger.onMemberRemove(member, client);
+  } catch (error) {
+    console.error("GuildMemberRemove logger error:", error);
+  }
+});
+
+client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
+  try {
+    await voiceLogger.onVoiceStateUpdate(oldState, newState, client);
+  } catch (error) {
+    console.error("VoiceStateUpdate logger error:", error);
   }
 });
 

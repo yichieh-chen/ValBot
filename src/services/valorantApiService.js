@@ -9,13 +9,22 @@ function formatErrorMessage(body, fallback) {
 }
 
 async function fetchHenrikJson(apiKey, endpointPath) {
-  const response = await fetch(`${HENRIK_API_BASE_URL}${endpointPath}`, {
-    method: "GET",
-    headers: {
-      Accept: "application/json",
-      Authorization: apiKey,
-    },
-  });
+  let response;
+  try {
+    response = await fetch(`${HENRIK_API_BASE_URL}${endpointPath}`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Authorization: apiKey,
+      },
+      signal: AbortSignal.timeout(15_000),
+    });
+  } catch (error) {
+    if (error.name === "TimeoutError") {
+      throw new Error("Henrik API 請求逾時，請稍後再試");
+    }
+    throw error;
+  }
 
   const contentType = response.headers.get("content-type") || "";
   const body = contentType.includes("application/json")

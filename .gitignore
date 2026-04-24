@@ -1,2 +1,6 @@
 node_modules/
 .env
+.bot.lock
+*.zip
+.DS_Store
+Thumbs.db

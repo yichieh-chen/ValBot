@@ -1,8 +1,11 @@
 {
   "name": "discordbot",
   "version": "1.0.0",
-  "description": "Discord.js starter bot",
+  "description": "Discord.js bot with moderation, logging, and Valorant stats",
   "main": "src/index.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js"

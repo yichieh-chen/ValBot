@@ -42,6 +42,15 @@ function parseRiotId(riotId) {
   return { name, tag };
 }
 
+function cleanExpiredCooldowns() {
+  const now = Date.now();
+  for (const [id, timestamp] of queryCooldownMap) {
+    if (now - timestamp > QUERY_COOLDOWN_MS) {
+      queryCooldownMap.delete(id);
+    }
+  }
+}
+
 function getCooldownRemainingMs(userId) {
   const lastQueryAt = queryCooldownMap.get(userId);
   if (!lastQueryAt) {
@@ -49,10 +58,17 @@ function getCooldownRemainingMs(userId) {
   }
 
   const elapsed = Date.now() - lastQueryAt;
-  return Math.max(0, QUERY_COOLDOWN_MS - elapsed);
+  const remaining = Math.max(0, QUERY_COOLDOWN_MS - elapsed);
+
+  if (remaining === 0) {
+    queryCooldownMap.delete(userId);
+  }
+
+  return remaining;
 }
 
 function markUserQuery(userId) {
+  cleanExpiredCooldowns();
   queryCooldownMap.set(userId, Date.now());
 }
 
