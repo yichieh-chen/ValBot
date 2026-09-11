@@ -104,39 +104,6 @@ npm start
 
 ---
 
-## 線上託管部署
-
-Bot 為純 WebSocket 連線，**不需要開放任何 Port**，適合部署於以下平台：
-
-### Railway（推薦）
-
-1. 將此 repo push 到 GitHub
-2. 前往 [Railway](https://railway.app/) → New Project → Deploy from GitHub repo
-3. 在 **Variables** 頁籤填入所有環境變數
-4. Railway 會自動偵測 `package.json` 並執行 `npm start`
-
-### Render
-
-1. 將此 repo push 到 GitHub
-2. 前往 [Render](https://render.com/) → New → Background Worker
-3. Build Command：`npm install`，Start Command：`npm start`
-4. 在 **Environment** 填入所有環境變數
-
-### Fly.io
-
-```bash
-fly launch
-fly secrets set DISCORD_TOKEN=你的token CLIENT_ID=你的id ...
-fly deploy
-```
-
-### 所有平台共同注意事項
-
-- `ENABLE_SINGLE_INSTANCE_LOCK` 設為 `false`（預設值），避免平台重啟時誤判為重複實例
-- 確認 Node.js 版本為 **20+**（本專案 `package.json` 已透過 `engines` 欄位聲明）
-
----
-
 ## 專案結構
 
 ```
