@@ -1,4 +1,4 @@
-# Discord Bot
+# ValBot
 
 基於 [discord.js v14](https://discord.js.org/) 開發的多功能 Discord Bot，提供伺服器管理、事件紀錄與 Valorant 戰績查詢功能。
 
